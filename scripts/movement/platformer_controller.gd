@@ -60,8 +60,6 @@ func _physics_process(delta):
 	_check_floor()
 	_check_wall()
 	
-	_apply_gravity(delta)
-	_apply_jump()
 	_apply_movement(delta)
 
 func _check_floor():
@@ -82,23 +80,25 @@ func _check_wall():
 	
 	_is_on_wall = is_on_wall()
 
-func _apply_gravity(delta):
-	if not _is_on_floor:
-		velocity.y += gravity * delta
 
 func _apply_movement(_delta):
-	var direction = Input.get_axis("move_left", "move_right") if _can_move else 0.0
-	if direction:
-		velocity.x = direction * move_speed
+	var xaxis = Input.get_axis("move_left", "move_right") if _can_move else 0.0
+	var yaxis = Input.get_axis("move_up", "move_down") if _can_move else 0.0
+	if xaxis:
+		velocity.x = xaxis * move_speed
 	else:
 		velocity.x = move_toward(velocity.x, 0, move_speed)
+	if yaxis:
+		velocity.y = yaxis * move_speed
+	else:
+		velocity.y = move_toward(velocity.y, 0, move_speed)
+	
 
 	if _is_on_floor:
 		on_move_ground.emit()
 	
 	move_and_slide()
 
-func _apply_jump():
 	if not _can_move: return
 	
 	if Input.is_action_just_pressed("jump") or (_is_jump_buffered and _is_on_floor):
